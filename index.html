@@ -4,37 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia de Pontos de Ônibus - PUC Campinas</title>
+    <link rel="shortcut icon" href="img/bus.png">
 
     <!-- Importação da fonte Montserrat e Tailwind CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Customização do popup e outros estilos -->
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            padding: 0 1rem; /* Adiciona espaçamento para mobile */
-        }
-        .leaflet-popup-content-wrapper {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            color: #333;
-        }
-        .leaflet-popup-tip {
-            background-color: #f8f9fa;
-        }
-        @media (max-width: 640px) {
-            /* Ajustes para mobile */
-            #map { height: 50vh; } /* Reduz altura do mapa */
-            .max-w-5xl { max-width: 100%; } /* Força largura completa no mobile */
-            .text-3xl { font-size: 1.5rem; } /* Reduz tamanho dos títulos */
-            .text-2xl { font-size: 1.25rem; } /* Ajusta sub-títulos */
-            .text-lg { font-size: 1rem; } /* Texto para botões */
-            .flex { flex-direction: column; align-items: center; }
-        }
-    </style>
+
+    <link rel="stylesheet" href="estilizar.css">
 </head>
 <body class="flex flex-col items-center bg-gray-100 min-h-screen">
     <h1 class="text-3xl font-semibold text-blue-800 mt-6 mb-4 text-center">Guia de Pontos de Ônibus - PUC Campinas</h1>
@@ -59,71 +37,38 @@
                 Localização: Próxima à entrada principal da biblioteca, ponto de fácil acesso para estudantes.
             </div>
         </div>
-        <!-- Repetir para cada ponto -->
-         <!--alo-->
+        <div x-data="{ open: false }" class="border-t border-gray-200">
+            <button @click="open = !open" class="w-full text-left p-4 flex justify-between items-center focus:outline-none">
+                <span class="text-lg font-semibold text-gray-700">H0</span>
+                <span :class="{ 'rotate-180': open }" class="transition-transform transform">&#9660;</span>
+            </button>
+            <div x-show="open" class="p-4 text-gray-600">
+                Localização: Ponto em frente ao estácionamento do prédio H0.
+            </div>
+        </div>
+        <div x-data="{ open: false }" class="border-t border-gray-200">
+            <button @click="open = !open" class="w-full text-left p-4 flex justify-between items-center focus:outline-none">
+                <span class="text-lg font-semibold text-gray-700">Quadra de Tênis</span>
+                <span :class="{ 'rotate-180': open }" class="transition-transform transform">&#9660;</span>
+            </button>
+            <div x-show="open" class="p-4 text-gray-600">
+                Localização: Ponto próximo ao local com quadras de tênis. Acessível ao Bloco A e Bloco b.
+            </div>
+        </div>
+        <div x-data="{ open: false }" class="border-t border-gray-200">
+            <button @click="open = !open" class="w-full text-left p-4 flex justify-between items-center focus:outline-none">
+                <span class="text-lg font-semibold text-gray-700">Ginásio</span>
+                <span :class="{ 'rotate-180': open }" class="transition-transform transform">&#9660;</span>
+            </button>
+            <div x-show="open" class="p-4 text-gray-600">
+                Localização: Próximo ao ginásio pricipal, local do CCHSA.
+            </div>
+        </div>
     </div>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.start();
-        });
+    <div class="contato" id="contato"></div>
 
-        // Inicializar mapa Leaflet
-        const map = L.map('map').setView([-22.833664, -47.048420], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
-
-        const busStopIcon = L.icon({
-            iconUrl: 'bus-stop.png',
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
-        });
-
-        const stops = [
-            { lat: -22.83413270737902, lng: -47.05124294784846, name: "Biblioteca", details: "Próxima à entrada principal." },
-            { lat: -22.832786940312445, lng: -47.049827373275015, name: "Prédio H00", details: "Em frente ao prédio H00." },
-            { lat: -22.834525, lng: -47.044767, name: "Ginásio", details: "Próximo ao ginásio principal." },
-        ];
-
-        stops.forEach(stop => {
-            L.marker([stop.lat, stop.lng], { icon: busStopIcon })
-              .addTo(map)
-              .bindPopup(`<b>${stop.name}</b><br>${stop.details}`);
-        });
-
-        // Busca de pontos
-        document.getElementById("search").addEventListener("input", function(e) {
-            const query = e.target.value.toLowerCase();
-            stops.forEach(stop => {
-                if (stop.name.toLowerCase().includes(query)) {
-                    map.setView([stop.lat, stop.lng], 17);
-                }
-            });
-        });
-        
-        // Rota do ônibus interno
-        let busMarker;
-        async function fetchBusLocation() {
-            const response = await fetch('https://script.google.com/macros/s/AKfycbzya2qE3JkSS-LFYE4zOqAvjKwzaudFnRSH2QeFNNviG7NSFx-ZqG1EvOGH7ChMndO1UA/exec');
-            const data = await response.json();
-            const [latitude, longitude] = data[0].map(Number);
-
-            if (!isNaN(latitude) && !isNaN(longitude)) {
-                if (busMarker) {
-                    busMarker.setLatLng([latitude, longitude]);
-                } else {
-                    busMarker = L.marker([latitude, longitude], { icon: L.icon({
-                        iconUrl: 'bus.png',
-                        iconSize: [36, 36],
-                        iconAnchor: [18, 30],
-                        popupAnchor: [0, -30]
-                    }) }).addTo(map).bindPopup("Ônibus Interno");
-                }
-            }
-        }
-        setInterval(fetchBusLocation, 2000);
-    </script>
-
+    <script src="maps.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>
