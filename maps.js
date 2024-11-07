@@ -7,7 +7,7 @@ const map = L.map('map').setView([-22.833664, -47.048420], 16);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20 }).addTo(map);
 
 const busStopIcon = L.icon({
-    iconUrl: 'img/bus-stop.png',
+    iconUrl: 'bus-stop.png',
     iconSize: [40, 40],
     iconAnchor: [20, 40],
     popupAnchor: [0, -40]
@@ -51,7 +51,7 @@ async function fetchBusLocation() {
             busMarker.setLatLng([latitude, longitude]);
         } else {
             busMarker = L.marker([latitude, longitude], { icon: L.icon({
-                iconUrl: 'img/bus.png',
+                iconUrl: 'bus.png',
                 iconSize: [36, 36],
                 iconAnchor: [18, 30],
                 popupAnchor: [0, -30]
